@@ -1,24 +1,27 @@
 # syntax=docker/dockerfile:1
 
+# 1) Base image
 FROM python:3.13-slim
 
-# 1) set workdir
+# 2) Set working directory
 WORKDIR /app
 
-# 2) copy only what we need
+# 3) Copy only requirements first (to leverage Docker layer caching)
 COPY requirements.txt .
+
+# 4) Copy application code and templates/static assets
 COPY app.py .
 COPY templates/ ./templates
 COPY static/ ./static
 
-# 3) install deps
+# 5) Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4) copy the rest (frames/, uploads/, etc. can stay empty in source)
+# 6) Copy the rest of the project (e.g., frames/, uploads/)
 COPY . .
 
-# 5) expose the port env Render will supply
+# 7) Expose the port (Render will set PORT as an env var)
 EXPOSE 10000
 
-# 6) run via Gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+# 8) Launch via Gunicorn; using shell form for $PORT interpolation
+CMD gunicorn app:app --bind 0.0.0.0:$PORT
