@@ -2,20 +2,27 @@
 
 FROM python:3.13-slim
 
-# 1) set workdir
+# 1) system deps for OpenCV
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libgl1-mesa-glx \
+      libglib2.0-0 \
+ && rm -rf /var/lib/apt/lists/*
+
+# 2) set workdir
 WORKDIR /app
 
-# 2) copy, install dependencies
-COPY requirements.txt .
+# 3) copy only what we need for install
+COPY requirements.txt . 
+
+# 4) install deps
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 3) copy app code
-COPY app.py .
-COPY templates/ ./templates
-COPY static/   ./static
+# 5) copy code
+COPY . .
 
-# 4) expose the port Render will supply
+# 6) expose the port Render will supply
 EXPOSE 10000
 
-# 5) run via Gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
+# 7) start with extended timeout
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--timeout", "600"]
