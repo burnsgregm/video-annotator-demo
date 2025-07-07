@@ -18,4 +18,5 @@ COPY static/ ./static
 
 EXPOSE 10000
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+# use shell form so $PORT is expanded at container start
+CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
