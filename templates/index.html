@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Annotator Demo</title>
+  <style>
+    /* greyed-out look for disabled buttons */
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload a Video (.mp4)</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul style="color: red;">
+        {% for msg in messages %}<li>{{ msg }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form id="upload-form"
+        action="{{ url_for('upload') }}"
+        method="post"
+        enctype="multipart/form-data">
+
+    <!-- file input -->
+    <input id="video-input"
+           type="file"
+           name="video"
+           accept=".mp4"
+           required />
+
+    <!-- disabled by default until a file is chosen -->
+    <button id="upload-btn"
+            type="submit"
+            disabled>
+      Upload &amp; Process
+    </button>
+  </form>
+
+  {% if output_video %}
+    <p style="margin-top: 1em;">
+      ✅ Your video is ready!  
+      <a href="{{ url_for('download', filename=output_video) }}">
+        Download Annotated Video
+      </a>
+    </p>
+  {% endif %}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("video-input");
+      const btn   = document.getElementById("upload-btn");
+      const form  = document.getElementById("upload-form");
+
+      // 1) Enable the button once a file is selected
+      input.addEventListener("change", () => {
+        btn.disabled = !input.files.length;
+      });
+
+      // 2) As soon as the user submits, disable & grey it out
+      form.addEventListener("submit", () => {
+        btn.disabled = true;
+        btn.textContent = "Processing…";  
+      });
+    });
+  </script>
+</body>
+</html>

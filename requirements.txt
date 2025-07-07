@@ -1,0 +1,7 @@
+gunicorn
+flask
+opencv-python
+Pillow
+moviepy
+requests
+python-dotenv
