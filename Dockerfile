@@ -2,21 +2,20 @@
 
 FROM python:3.13-slim
 
-# install libGL for OpenCV
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libgl1-mesa-glx && \
-    rm -rf /var/lib/apt/lists/*
-
+# 1) set workdir
 WORKDIR /app
 
+# 2) copy, install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 3) copy app code
 COPY app.py .
 COPY templates/ ./templates
-COPY static/ ./static
+COPY static/   ./static
 
+# 4) expose the port Render will supply
 EXPOSE 10000
 
-# use shell form so $PORT is expanded at container start
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
+# 5) run via Gunicorn
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
